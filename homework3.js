@@ -32,7 +32,8 @@ var FIELD_LABELS = {
   gender:         "Gender",
   medication:     "On Medications?",
   vaccination:    "COVID Vaccinated?",
-  feeling:        "Urgency Level (1-10)"
+  feeling:        "Urgency Level (1-10)",
+  rememberMe:     "Remember Inputs?"
 };
 
 var error_flag = "0";
