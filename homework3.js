@@ -2,11 +2,11 @@
  Name: Cinque Preston
  File: homework3.js
  Date Created: 2026-03-15
- Date Updated: 2026-04-20
+ Date Updated: 2026-05-04
  Purpose: Combined validation + review table for Preston Medical registration form
 */
 
-// Maps each field name to a friendly label for the review table
+// Maps each field name to a user label for the review table
 var FIELD_LABELS = {
   firstname:      "First Name",
   middleinit:     "Middle Initial",
@@ -37,7 +37,7 @@ var FIELD_LABELS = {
 
 var error_flag = "0";
 
-// REVIEW TABLE 
+// Review table java
 
 function getdata1() {
   var form = document.getElementById("register");
@@ -93,14 +93,13 @@ function removedata1() {
   document.getElementById("submit").disabled = true;
 }
 
-// HELPER 
 
 function showMsg(id, msg) {
   var el = document.getElementById(id);
   if (el) el.innerHTML = msg;
 }
 
-// SSN AUTO-FORMAT 
+// SocialSec auto formatting function 
 
 function formatSSN() {
   var val = document.getElementById("SSN").value.replace(/[^0-9]/g, "");
@@ -122,7 +121,7 @@ function checkSSN() {
   }
 }
 
-// NAME FIELDS 
+// Name field
 
 function checkfirstname() {
   var val = document.getElementById("firstname").value;
@@ -162,7 +161,7 @@ function checklastname() {
   }
 }
 
-// DATE OF BIRTH 
+// Date of birth things
 
 function checkDOB() {
   var val = document.getElementById("DOB").value;
@@ -188,7 +187,7 @@ function checkDOB() {
   }
 }
 
-// CONTACT FIELDS
+// Contact fields
 
 function checkemail() {
   var val = document.getElementById("email1").value;
@@ -214,7 +213,7 @@ function checkphone() {
   }
 }
 
-// ADDRESS FIELDS
+// Address
 
 function checkaddr1() {
   var val = document.getElementById("addr1").value;
@@ -269,7 +268,7 @@ function checkzip() {
   }
 }
 
-// USERNAME 
+// User
 
 function checkuser() {
   var val = document.getElementById("user").value;
@@ -291,7 +290,7 @@ function checkuser() {
   }
 }
 
-// PASSWORD 
+// Pass
 
 function passwordentry() {
   var pass     = document.getElementById("pass").value;
@@ -336,7 +335,7 @@ function checkpassword2() {
   }
 }
 
-// RADIO BUTTONs
+// Radio buttons
 
 function checkgender() {
   if (!document.querySelector('input[name="gender"]:checked')) {
@@ -365,7 +364,7 @@ function checkvaccination() {
   }
 }
 
-// CHECK ALL 
+// Check all
 
 function checkform() {
   error_flag = "0";
@@ -396,3 +395,237 @@ function checkform() {
     alert("All fields are valid! You may now click Send to submit.");
   }
 }
+
+
+(function() {
+    var days   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    var months = ["January","February","March","April","May","June",
+                  "July","August","September","October","November","December"];
+    var d      = new Date();
+    var date   = d.getDate();
+    var suffix = (date===1||date===21||date===31)?"st":(date===2||date===22)?"nd":(date===3||date===23)?"rd":"th";
+    document.getElementById("today").innerHTML =
+        days[d.getDay()] + ", " + months[d.getMonth()] + " " + date + suffix + ", " + d.getFullYear();
+})();
+
+
+
+//  Cookie stuff
+
+function setCookie(name, value, hours) {
+    var exp = new Date();
+    exp.setTime(exp.getTime() + hours * 60 * 60 * 1000);
+    document.cookie = name + "=" + encodeURIComponent(value) +
+                      "; expires=" + exp.toUTCString() + "; path=/";
+}
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i].trim();
+        if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length));
+        }
+    }
+    return null;
+}
+
+function deleteCookie(name) {
+    document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+}
+
+
+
+// save stuff to local storage
+function saveField(id) {
+    var el = document.getElementById(id);
+    if (el) {
+        localStorage.setItem(id, el.value);
+    }
+}
+
+function saveCheckbox(id) {
+    var el = document.getElementById(id);
+    if (el) {
+        localStorage.setItem(id, el.checked ? "1" : "0");
+    }
+}
+
+function saveRadio(name) {
+    var checked = document.querySelector('input[name="' + name + '"]:checked');
+    if (checked) {
+        localStorage.setItem("radio_" + name, checked.value);
+    } else {
+        localStorage.setItem("radio_" + name, "");
+    }
+}
+
+function restoreFromLocalStorage() {
+    var fields = ["firstname","middleinit","lastname","DOB",
+                  "addr1","addr2","city","state","zip",
+                  "phone","email1","user","description","feeling"];
+
+    for (var i = 0; i < fields.length; i++) {
+        var val = localStorage.getItem(fields[i]);
+        var el = document.getElementById(fields[i]);
+        if (val && el) {
+            el.value = val;
+        }
+    }
+
+    var feeling = document.getElementById("feeling");
+    if (feeling) {
+        document.getElementById("urgencyValue").innerHTML = feeling.value;
+    }
+
+    var checkboxes = ["illness1","illness2","illness3","illness4","illnessOther"];
+    for (var i = 0; i < checkboxes.length; i++) {
+        var val = localStorage.getItem(checkboxes[i]);
+        var el = document.getElementById(checkboxes[i]);
+        if (val && el) {
+            el.checked = (val === "1");
+        }
+    }
+
+    var radios = ["gender","medication","vaccination"];
+    for (var i = 0; i < radios.length; i++) {
+        var val = localStorage.getItem("radio_" + radios[i]);
+        if (val) {
+            var rb = document.querySelector('input[name="' + radios[i] + '"][value="' + val + '"]');
+            if (rb) rb.checked = true;
+        }
+    }
+}
+
+
+function initWelcome() {
+    var savedName = getCookie("pmc_firstname");
+
+    if (savedName) {
+        // Returning user
+        document.getElementById("welcome-msg").innerHTML =
+            "Welcome back, <strong>" + savedName + "</strong>!";
+
+        document.getElementById("not-you-link").innerHTML =
+            '&nbsp;&nbsp;<a href="#" onclick="startNewUser(); return false;" style="color:rgb(162,255,144);">' +
+            'Not ' + savedName + '? Click here to start as a new user.</a>';
+
+        // Pre-fill first name and restore all other fields
+        document.getElementById("firstname").value = savedName;
+        restoreFromLocalStorage();
+
+    } else {
+        // First time 
+        document.getElementById("welcome-msg").innerHTML =
+            "Welcome, New User! Please fill out the form below.";
+        document.getElementById("not-you-link").innerHTML = "";
+    }
+}
+
+function clearLocalStorage() {
+    var fields = ["firstname","middleinit","lastname","DOB",
+                  "addr1","addr2","city","state","zip",
+                  "phone","email1","user","description","feeling",
+                  "illness1","illness2","illness3","illness4","illnessOther",
+                  "radio_gender","radio_medication","radio_vaccination"];
+    for (var i = 0; i < fields.length; i++) {
+        localStorage.removeItem(fields[i]);
+    }
+}
+// Called when name is wrong/user wants to do a new form
+function startNewUser() {
+    if (confirm("Clear all saved data and start fresh?")) {
+        deleteCookie("pmc_firstname");
+        clearLocalStorage();
+        document.getElementById("register").reset();
+        document.getElementById("outputformdata").innerHTML = "";
+        document.getElementById("submit").disabled = true;
+        document.getElementById("welcome-msg").innerHTML =
+            "&#127817; Welcome, New User! Please fill out the form below.";
+        document.getElementById("not-you-link").innerHTML = "";
+    }
+}
+
+// Remember Me checkbox 
+function handleRememberMe() {
+    var checked = document.getElementById("rememberMe").checked;
+    if (!checked) {
+        deleteCookie("pmc_firstname");
+        clearLocalStorage();
+        alert("Your saved data has been cleared.");
+    } else {
+        var fn = document.getElementById("firstname").value.trim();
+        if (fn) setCookie("pmc_firstname", fn, 48);
+        alert("Your data will be remembered for 48 hours.");
+    }
+}
+
+// Override the form reset to also wipe storage
+function clearAllData() {
+    document.getElementById("submit").disabled = true;
+    document.getElementById("outputformdata").innerHTML = "";
+    var remember = document.getElementById("rememberMe").checked;
+    if (!remember) {
+        deleteCookie("pmc_firstname");
+        clearLocalStorage();
+    }
+}
+
+// When first name field loses focus, save the cookie 
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("firstname").addEventListener("blur", function() {
+        var remember = document.getElementById("rememberMe").checked;
+        if (remember) {
+            var fn = this.value.trim();
+            if (fn) setCookie("pmc_firstname", fn, 48);
+        }
+        saveField("firstname");
+    });
+});
+
+
+//  Load states list from external XML file
+async function loadStates() {
+    var statusEl = document.getElementById("fetch-status");
+    try {
+        var response = await fetch("states.xml");
+        if (!response.ok) throw new Error("HTTP " + response.status);
+
+        var xmlText = await response.text();
+        var parser  = new DOMParser();
+        var xmlDoc  = parser.parseFromString(xmlText, "application/xml");
+
+        // Check for XML parse errors
+        var parseErr = xmlDoc.querySelector("parsererror");
+        if (parseErr) throw new Error("XML parse error");
+
+        var nodes  = xmlDoc.getElementsByTagName("state");
+        var select = document.getElementById("state");
+        select.innerHTML = '<option value=""></option>';  // blank default
+
+        for (var i = 0; i < nodes.length; i++) {
+            var opt = document.createElement("option");
+            opt.value       = nodes[i].getAttribute("abbr");
+            opt.textContent = nodes[i].textContent;
+            select.appendChild(opt);
+        }
+
+        statusEl.textContent = "Form options loaded from XML.";
+        setTimeout(function() { statusEl.textContent = ""; }, 2000);
+
+        // After states load, restore any saved state selection
+        var savedState = localStorage.getItem("state");
+        if (savedState) select.value = savedState;
+
+    } catch (err) {
+    statusEl.textContent = "Could not load states.xml.";
+    }
+}
+
+
+
+window.addEventListener("load", function() {
+    loadStates();  
+    initWelcome(); 
+});
